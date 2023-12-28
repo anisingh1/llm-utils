@@ -77,16 +77,15 @@ class _Query:
         model = 'llm'
         if self.llm == 'gpt4':
             model = 'gpt4'
+        else:
+            obj['model'] = "./model/llama2_13b_chat"
         headers = self.header[model]
         try:
             start = time.time()
             x = requests.post(reqUrl, data=json.dumps(obj), headers=headers, timeout=30)
             end = time.time()
             x = json.loads(x.text)
-            if 'error' in x:
-                print("ERROR: " + row[self.inputcolumn] + " : " + x['error'])
-                return row
-            elif 'choices' in x:
+            if 'choices' in x:
                 x = x['choices'][0]['message']['content']
                 print("OUTPUT: " + row[self.inputcolumn] + " : " + x)
                 row[self.llm + ' reasons'] = x
@@ -98,6 +97,9 @@ class _Query:
                             row[self.llm + ' offensive'] = True
                             break
                 row[self.llm + ' time'] = round(end - start, 2)
+            elif 'message' in x:
+                print("ERROR: " + row[self.inputcolumn] + " : " + x['message'])
+                return row
             return row
         except Exception as e:
             print(e)
