@@ -55,6 +55,6 @@ class _Prefs:
 		except Exception as error:
 			return ""
 			
-prefsPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config", "config.cfg")
+prefsPath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.cfg")
 _prefsObj = _Prefs(prefsPath)
 def Prefs(): return _prefsObj

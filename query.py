@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from itertools import islice
 
 
-file = Prefs().getPref('csv', 'file')
+file = Prefs().getPref('inputfile', 'csv')
 llm = Prefs().getPref('llm', 'llm')
 workers = 1
 if llm != "gpt4":
@@ -26,12 +26,12 @@ with open(os.path.join('csv', file), newline='') as csvfile:
     if llm == "gpt4":
         with ThreadPoolExecutor(max_workers=workers) as executor:
             for batch in iter(lambda: list(islice(reader, workers)), []):
-                futures = [executor.submit(Query.gptScore, row) for row in batch]
+                futures = [executor.submit(Query().gptScore, row) for row in batch]
                 results += [future.result() for future in futures]
     elif llm == "llama2":
         with ThreadPoolExecutor(max_workers=workers) as executor:
             for batch in iter(lambda: list(islice(reader, workers)), []):
-                futures = [executor.submit(Query.llamaScore, row) for row in batch]
+                futures = [executor.submit(Query().llamaScore, row) for row in batch]
                 results += [future.result() for future in futures]
 
 outfile = 'output_' + file

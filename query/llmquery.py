@@ -10,12 +10,12 @@ class _Query:
     inputcolumn = None
 
     def __init__(self):
-        self.inputcolumn = Prefs().getPref('csv', 'inputcolumn')
-        self.region = Prefs().getPref('csv', 'region')
+        self.inputcolumn = Prefs().getPref('inputcolumn', 'csv')
+        self.region = Prefs().getPref('region', 'llm')
 
 
     def message(self, row):
-        context = "Provide a list of reasons with each reason described in around 10 words in JSON format along with their severity (categorized as High, Medium, and Low) for the user-provided text input to be culturally offensive to the majority of people in " + self.region + ". Also, give a confidence score against each reason. Don't make any presumptions and only consider the user-provided text input for evaluation. Merge similar reasons together and provide the response within 150 words. The complete response should be a valid JSON."
+        context = "Provide a list of reasons with each reason described in around 10 words in JSON format along with their severity (categorized as High, Medium, and Low) for the user-provided text input to be culturally offensive to the majority of people in " + self.region + ". Don't make any presumptions and only consider the user-provided text input for evaluation. Merge similar reasons together and provide the response within 150 words. The complete response should be a valid JSON."
         conversation = [
             {
                 "role":"system",
@@ -27,7 +27,7 @@ class _Query:
             },
             {
                 "role":"assistant",
-                "content":"[{\"reason\": \"Disrespecting religious sentiments of Christians\",\"severity\": \"High\",\"confidence\": 0.9},{\"reason\": \"Misrepresentation of Jesus' peaceful teachings\",\"severity\": \"High\",\"confidence\": 0.85},{\"reason\": \"Promoting religious conflict in diverse India\",\"severity\": \"High\",\"confidence\": 0.75},{\"reason\": \"Inappropriate portrayal of a religious figure\",\"severity\": \"Medium\",\"confidence\": 0.58},{\"reason\": \"Ignorance of Indian cultural and religious values\",\"severity\": \"Medium\",\"confidence\": 0.5}]"
+                "content":"[{\"reason\": \"Disrespecting religious sentiments of Christians\",\"severity\": \"High\"},{\"reason\": \"Misrepresentation of Jesus' peaceful teachings\",\"severity\": \"High\"},{\"reason\": \"Promoting religious conflict in diverse India\",\"severity\": \"High\"},{\"reason\": \"Inappropriate portrayal of a religious figure\",\"severity\": \"Medium\"},{\"reason\": \"Ignorance of Indian cultural and religious values\",\"severity\": \"Medium\"}]"
             },
             {
                 "role":"user",
@@ -72,9 +72,15 @@ class _Query:
             elif 'choices' in x:
                 x = x['choices'][0]['message']['content']
                 print("OUTPUT: " + row[self.inputcolumn] + " : " + x)
-                row['offensive'] = x['offensive']
-                row['reasons'] = x['reasons']
-                row['time'] = end - start
+                row['reasons'] = x
+                row['offensive'] = False
+                reasons = json.loads(x)
+                if len(reasons) > 0:
+                    for item in reasons:
+                        if item['severity'] == 'High':
+                            row['offensive'] = True
+                            break
+                row['time'] = round(end - start, 2)
             return row
         except Exception as e:
             print(e)
