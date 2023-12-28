@@ -8,13 +8,30 @@ secrets = dotenv_values(".env")
 
 class _Query:
     inputcolumn = None
+    region = 'worldwide'
+    llm = None
+    endpoint = None
+    header = {}
 
     def __init__(self):
         self.inputcolumn = Prefs().getPref('inputcolumn', 'csv')
-        self.region = Prefs().getPref('region', 'llm')
+        self.region = Prefs().getPref('region')
+        self.llm = Prefs().getPref('llm')
+        self.endpoint = Prefs().getPref('url', self.llm)
+        self.header['gpt4'] = {
+            "api-key": secrets['gptkey'],
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+        self.header['llm'] = {
+            "Authorization": "bearer " + secrets['imstoken'],
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "x-api-key": "contentauditor_web"
+        }
 
 
-    def message(self, row):
+    def getMessage(self, row):
         context = "Provide a list of reasons with each reason described in around 10 words in JSON format along with their severity (categorized as High, Medium, and Low) for the user-provided text input to be culturally offensive to the majority of people in " + self.region + ". Don't make any presumptions and only consider the user-provided text input for evaluation. Merge similar reasons together and provide the response within 150 words. The complete response should be a valid JSON."
         conversation = [
             {
@@ -53,14 +70,14 @@ class _Query:
         return obj
     
 
-    def gptScore(self, row):
-        reqUrl = "https://gpt4-g11n.openai.azure.com/openai/deployments/gpt4/chat/completions?api-version=2023-07-01-preview"
-        headers = {
-            "api-key": secrets['gptkey'],
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        }
-        obj = self.message(row)
+    def ask(self, row):
+        reqUrl = self.endpoint
+        obj = self.getMessage(row)
+
+        model = 'llm'
+        if self.llm == 'gpt4':
+            model = 'gpt4'
+        headers = self.header[model]
         try:
             start = time.time()
             x = requests.post(reqUrl, data=json.dumps(obj), headers=headers, timeout=30)
@@ -72,57 +89,20 @@ class _Query:
             elif 'choices' in x:
                 x = x['choices'][0]['message']['content']
                 print("OUTPUT: " + row[self.inputcolumn] + " : " + x)
-                row['gpt4 reasons'] = x
-                row['gpt4 offensive'] = False
+                row[self.llm + ' reasons'] = x
+                row[self.llm + ' offensive'] = False
                 reasons = json.loads(x)
                 if len(reasons) > 0:
                     for item in reasons:
                         if item['severity'] == 'High':
-                            row['gpt4 offensive'] = True
+                            row[self.llm + ' offensive'] = True
                             break
-                row['gpt4 time'] = round(end - start, 2)
+                row[self.llm + ' time'] = round(end - start, 2)
             return row
         except Exception as e:
             print(e)
-            row['gpt4 offensive'] = 'error'
-            row['gpt4 reasons'] = e
-            return row
-
-
-    def llamaScore(self, row):
-        reqUrl = "http://0.0.0.0:6006/v1/chat/completions"
-        headers = {
-            "Authorization": "bearer " + secrets['imstoken'],
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "x-api-key": "contentauditor_web"
-        }
-        obj = self.message(row)
-        try:
-            start = time.time()
-            x = requests.post(reqUrl, data=json.dumps(obj), headers=headers, timeout=30)
-            end = time.time()
-            x = json.loads(x.text)
-            if 'error' in x:
-                print("ERROR: " + row[self.inputcolumn] + " : " + x['error'])
-                return row
-            elif 'choices' in x:
-                x = x['choices'][0]['message']['content']
-                print("OUTPUT: " + row[self.inputcolumn] + " : " + x)
-                row['llama2 reasons'] = x
-                row['llama2 offensive'] = False
-                reasons = json.loads(x)
-                if len(reasons) > 0:
-                    for item in reasons:
-                        if item['severity'] == 'High':
-                            row['llama2 offensive'] = True
-                            break
-                row['llama2 time'] = round(end - start, 2)
-            return row
-        except Exception as e:
-            print(e)
-            row['llama2 offensive'] = 'error'
-            row['llama2 reasons'] = e
+            row[self.llm + ' offensive'] = 'error'
+            row[self.llm + ' reasons'] = e
             return row
 
 
