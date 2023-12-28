@@ -72,20 +72,20 @@ class _Query:
             elif 'choices' in x:
                 x = x['choices'][0]['message']['content']
                 print("OUTPUT: " + row[self.inputcolumn] + " : " + x)
-                row['reasons'] = x
-                row['offensive'] = False
+                row['gpt4 reasons'] = x
+                row['gpt4 offensive'] = False
                 reasons = json.loads(x)
                 if len(reasons) > 0:
                     for item in reasons:
                         if item['severity'] == 'High':
-                            row['offensive'] = True
+                            row['gpt4 offensive'] = True
                             break
-                row['time'] = round(end - start, 2)
+                row['gpt4 time'] = round(end - start, 2)
             return row
         except Exception as e:
             print(e)
-            row['offensive'] = 'error'
-            row['reasons'] = e
+            row['gpt4 offensive'] = 'error'
+            row['gpt4 reasons'] = e
             return row
 
 
@@ -109,14 +109,20 @@ class _Query:
             elif 'choices' in x:
                 x = x['choices'][0]['message']['content']
                 print("OUTPUT: " + row[self.inputcolumn] + " : " + x)
-                row['offensive'] = x['offensive']
-                row['reasons'] = x['reasons']
-                row['time'] = end - start
+                row['llama2 reasons'] = x
+                row['llama2 offensive'] = False
+                reasons = json.loads(x)
+                if len(reasons) > 0:
+                    for item in reasons:
+                        if item['severity'] == 'High':
+                            row['llama2 offensive'] = True
+                            break
+                row['llama2 time'] = round(end - start, 2)
             return row
         except Exception as e:
             print(e)
-            row['offensive'] = 'error'
-            row['reasons'] = e
+            row['llama2 offensive'] = 'error'
+            row['llama2 reasons'] = e
             return row
 
 

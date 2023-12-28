@@ -19,9 +19,9 @@ with open(os.path.join('csv', file), newline='') as csvfile:
     reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
     results = []
     header = reader.fieldnames
-    header.append('offensive')
-    header.append('reasons')
-    header.append('time')
+    header.append(llm + ' offensive')
+    header.append(llm + ' reasons')
+    header.append(llm + ' time')
     
     if llm == "gpt4":
         with ThreadPoolExecutor(max_workers=workers) as executor:
