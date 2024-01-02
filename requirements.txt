@@ -1,3 +1,4 @@
 requests
 python-dotenv
 xlrd==1.2.0
+langchain

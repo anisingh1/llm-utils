@@ -1,34 +1,38 @@
-import requests, json, time
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts.chat import (
+    ChatPromptTemplate,
+    HumanMessagePromptTemplate,
+    SystemMessagePromptTemplate,
+)
+from langchain.schema import HumanMessage, SystemMessage
 from utils import Prefs
 from dotenv import load_dotenv
 from dotenv import dotenv_values
+import time, json
 
 load_dotenv()
 secrets = dotenv_values(".env")
 
-class _Query:
+class _langQuery:
     inputcolumn = None
     region = 'worldwide'
     llm = None
     endpoint = None
     header = {}
+    chat = None
 
     def __init__(self):
         self.inputcolumn = Prefs().getPref('inputcolumn', 'csv')
         self.region = Prefs().getPref('region')
         self.llm = Prefs().getPref('llm')
         self.endpoint = Prefs().getPref('url', self.llm)
-        self.header['gpt4'] = {
-            "api-key": secrets['gptkey'],
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        }
-        self.header['llm'] = {
-            "Authorization": "bearer " + secrets['imstoken'],
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "x-api-key": "contentauditor_web"
-        }
+        self.chat = ChatOpenAI(
+            model=self.llm,
+            openai_api_key="EMPTY",
+            openai_api_base=self.endpoint,
+            max_tokens=256,
+            temperature=0,
+        )
 
 
     def getMessage(self, row):
@@ -71,18 +75,17 @@ class _Query:
 
 
     def ask(self, row):
-        reqUrl = self.endpoint
-
-        model = 'llm'
-        obj = self.getMessage(row)
-        if self.llm == 'gpt4':
-            model = 'gpt4'
-        else:
-            obj['model'] = './model/' + self.llm
-        headers = self.header[model]
         try:
             start = time.time()
-            x = requests.post(reqUrl, data=json.dumps(obj), headers=headers, timeout=30)
+            messages = [
+                SystemMessage(
+                    content="Provide a list of reasons with each reason described in around 10 words in JSON format along with their severity (categorized as High, Medium, and Low) for the last user-provided text input to be culturally offensive to the majority of people in " + self.region + ". Don't make any presumptions and only consider the user-provided text input for evaluation. Merge similar reasons together and provide the response within 150 words. Only provide a valid JSON in the response. Do not provide any explanations, examples or notes."
+                ),
+                HumanMessage(
+                    content=row[self.inputcolumn]
+                ),
+            ]
+            x = self.chat(messages)
             end = time.time()
             x = json.loads(x.text)
             if 'choices' in x:
@@ -108,5 +111,5 @@ class _Query:
             return row
 
 
-_queryObj = _Query()
-def Query(): return _queryObj
+_langqueryObj = _langQuery()
+def LangQuery(): return _langqueryObj
