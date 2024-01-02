@@ -1,9 +1,4 @@
 from langchain.chat_models import ChatOpenAI
-from langchain.prompts.chat import (
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    SystemMessagePromptTemplate,
-)
 from langchain.schema import HumanMessage, SystemMessage
 from utils import Prefs
 from dotenv import load_dotenv
