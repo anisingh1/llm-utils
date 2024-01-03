@@ -87,16 +87,21 @@ class _Query:
             x = json.loads(x.text)
             if 'choices' in x:
                 x = x['choices'][0]['message']['content']
-                print("OUTPUT: " + row[self.inputcolumn] + " : " + x)
-                row[self.llm + ' reasons'] = x
+                major = []
+                minor = []
                 row[self.llm + ' offensive'] = False
                 reasons = json.loads(x)
                 if len(reasons) > 0:
                     for item in reasons:
                         if item['severity'] == 'High':
                             row[self.llm + ' offensive'] = True
-                            break
+                            major.append(item['reason'])
+                        elif item['severity'] == 'Medium':
+                            minor.append(item['reason'])
+                row[self.llm + ' major reasons'] = '\n'.join(major)
+                row[self.llm + ' minor reasons'] = '\n'.join(minor)
                 row[self.llm + ' time'] = round(end - start, 2)
+                print("OUTPUT: " + row[self.inputcolumn] + " : " + str(row[self.llm + ' offensive']))
             elif 'message' in x:
                 print("ERROR: " + row[self.inputcolumn] + " : " + x['message'])
                 return row

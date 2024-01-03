@@ -1,5 +1,5 @@
 import csv, os
-from query import Query, LangQuery
+from query import Query
 from utils import Prefs
 from utils import xlstocsv
 from concurrent.futures import ThreadPoolExecutor
@@ -20,12 +20,13 @@ with open(os.path.join('csv', file), newline='') as csvfile:
     results = []
     header = reader.fieldnames
     header.append(llm + ' offensive')
-    header.append(llm + ' reasons')
+    header.append(llm + ' major reasons')
+    header.append(llm + ' minor reasons')
     header.append(llm + ' time')
     
     with ThreadPoolExecutor(max_workers=workers) as executor:
         for batch in iter(lambda: list(islice(reader, workers)), []):
-            futures = [executor.submit(LangQuery().ask, row) for row in batch]
+            futures = [executor.submit(Query().ask, row) for row in batch]
             results += [future.result() for future in futures]
 
 
