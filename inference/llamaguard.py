@@ -15,7 +15,7 @@ tags = {
     "05": "Regulated or Controlled Substances",
     "06": "Self-Harm"
 }
-class _guardQuery:
+class _query:
     inputcolumn = None
     llm = None
     endpoint = None
@@ -58,5 +58,5 @@ class _guardQuery:
             return row
 
 
-_guardQueryObj = _guardQuery()
-def GuardQuery(): return _guardQueryObj
+_queryObj = _query()
+def Query(): return _queryObj.ask()
