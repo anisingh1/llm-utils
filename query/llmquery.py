@@ -86,22 +86,26 @@ class _Query:
             end = time.time()
             x = json.loads(x.text)
             if 'choices' in x:
-                x = x['choices'][0]['message']['content']
-                major = []
-                minor = []
-                row[self.llm + ' offensive'] = False
-                reasons = json.loads(x)
-                if len(reasons) > 0:
-                    for item in reasons:
-                        if item['severity'] == 'High':
-                            row[self.llm + ' offensive'] = True
-                            major.append(item['reason'])
-                        elif item['severity'] == 'Medium':
-                            minor.append(item['reason'])
-                row[self.llm + ' major reasons'] = '\n'.join(major)
-                row[self.llm + ' minor reasons'] = '\n'.join(minor)
-                row[self.llm + ' time'] = round(end - start, 2)
-                print("OUTPUT: " + row[self.inputcolumn] + " : " + str(row[self.llm + ' offensive']))
+                if x['choices'][0]['message']['content'] != None:
+                    x = x['choices'][0]['message']['content']
+                    major = []
+                    minor = []
+                    row[self.llm + ' offensive'] = False
+                    reasons = json.loads(x)
+                    if len(reasons) > 0:
+                        for item in reasons:
+                            if item['severity'] == 'High':
+                                row[self.llm + ' offensive'] = True
+                                major.append(item['reason'])
+                            elif item['severity'] == 'Medium':
+                                minor.append(item['reason'])
+                    row[self.llm + ' major reasons'] = ' | '.join(major)
+                    row[self.llm + ' minor reasons'] = ' | '.join(minor)
+                    row[self.llm + ' time'] = round(end - start, 2)
+                    print("OUTPUT: " + row[self.inputcolumn] + " : " + str(row[self.llm + ' offensive']))
+                else:
+                    print("ERROR: " + row[self.inputcolumn] + " : " + 'content filtered')
+                    return row
             elif 'message' in x:
                 print("ERROR: " + row[self.inputcolumn] + " : " + x['message'])
                 return row
@@ -109,7 +113,7 @@ class _Query:
         except Exception as e:
             print(e)
             row[self.llm + ' offensive'] = 'error'
-            row[self.llm + ' reasons'] = e
+            row[self.llm + ' major reasons'] = e
             return row
 
 

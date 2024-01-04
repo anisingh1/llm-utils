@@ -9,7 +9,7 @@ def xlstocsv(file, sheet="Sheet1"):
     wb = xlrd.open_workbook(file)
     sh = wb.sheet_by_name(sheet)
     outfile = Path(file).stem + ".csv"
-    csvFile = open(os.path.join('csv', outfile), 'w')
+    csvFile = open(os.path.join('csv', outfile), 'w', encoding="utf-8")
     wr = csv.writer(csvFile, quoting=csv.QUOTE_MINIMAL)
 
     for rownum in range(sh.nrows):

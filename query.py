@@ -15,7 +15,7 @@ if llm != "gpt4":
 if file.endswith("xlsx") or file.endswith("xls"):
     file = xlstocsv(file)
 
-with open(os.path.join('csv', file), newline='') as csvfile:
+with open(os.path.join('csv', file), newline='', encoding="utf-8") as csvfile:
     reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
     results = []
     header = reader.fieldnames
@@ -31,7 +31,7 @@ with open(os.path.join('csv', file), newline='') as csvfile:
 
 
 outfile = 'output_' + file
-with open(os.path.join('csv', outfile), 'w', newline='') as csvfile:
+with open(os.path.join('csv', outfile), 'w', newline='', encoding="utf-8") as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=header, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     writer.writeheader()
     for row in results:
