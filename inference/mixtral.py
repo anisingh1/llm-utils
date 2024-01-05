@@ -18,9 +18,8 @@ class _Query:
         self.llm = Prefs().getPref('llm')
         self.endpoint = Prefs().getPref('url', self.llm)
         self.header = {
-            "api-key": secrets['gptkey'],
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Accept": "application/json",
         }
 
 
@@ -58,7 +57,8 @@ class _Query:
             'temperature': 0.1,
             'top_p': 0.95,
             'frequency_penalty': 0,
-            'presence_penalty': 0
+            'presence_penalty': 0,
+            'model': './model/' + self.llm
         }
         return obj
 

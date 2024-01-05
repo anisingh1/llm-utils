@@ -1,7 +1,7 @@
 from utils import Prefs
 from dotenv import load_dotenv
 from dotenv import dotenv_values
-import time, json
+import time
 import requests
 
 load_dotenv()
@@ -15,6 +15,7 @@ tags = {
     "05": "Regulated or Controlled Substances",
     "06": "Self-Harm"
 }
+
 class _query:
     inputcolumn = None
     llm = None

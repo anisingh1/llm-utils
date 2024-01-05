@@ -18,11 +18,9 @@ class _Query:
         self.llm = Prefs().getPref('llm')
         self.endpoint = Prefs().getPref('url', self.llm)
         self.header = {
-            "api-key": secrets['gptkey'],
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Accept": "application/json",
         }
-
 
     def getMessage(self, row):
         context = "Provide a list of reasons with each reason described in around 10 words in JSON format along with their severity (categorized as High, Medium, and Low) for the last user-provided text input to be culturally offensive to the majority of people in " + self.region + ". Don't make any presumptions and only consider the user-provided text input for evaluation. Merge similar reasons together and provide the response within 150 words. Only provide a valid JSON in the response. Do not provide any explanations, examples or notes."
@@ -58,7 +56,8 @@ class _Query:
             'temperature': 0.1,
             'top_p': 0.95,
             'frequency_penalty': 0,
-            'presence_penalty': 0
+            'presence_penalty': 0,
+            'model': './model/' + self.llm
         }
         return obj
 
