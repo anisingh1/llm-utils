@@ -8,15 +8,15 @@ from itertools import islice
 
 headers = {}
 headers['gpt4'] = ['gpt4 offensive', 'gpt4 major reasons', 'gpt4 minor reasons', 'gpt4 time']
-headers['llama2'] = ['llama2 offensive', 'llama2 major reasons', 'llama2 minor reasons', 'llama2 time']
-headers['mixtral'] = ['mixtral offensive', 'mixtral major reasons', 'mixtral minor reasons', 'mixtral time']
+headers['llama2'] = ['llama2 offensive', 'llama2 reasons', 'llama2 time']
+headers['mixtral'] = ['mixtral offensive', 'mixtral reasons', 'mixtral time']
 headers['llamaguard'] = ['llamaguard offensive', 'llamaguard reasons', 'llamaguard time']
 
 file = Prefs().getPref('inputfile', 'csv')
 llm = Prefs().getPref('llm')
 workers = 1
 if llm != "gpt4":
-    workers = 2
+    workers = 8
     
 
 # Convert XLSX to CSV
@@ -81,4 +81,7 @@ with open(os.path.join('csv', outfile), 'w', newline='') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=header, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     writer.writeheader()
     for row in results:
-        writer.writerow(row)
+        try:
+            writer.writerow(row)
+        except Exception as e:
+            pass

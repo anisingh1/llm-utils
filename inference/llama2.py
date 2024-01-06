@@ -23,31 +23,11 @@ class _Query:
         }
 
     def getMessage(self, row):
-        context = "Provide a list of reasons with each reason described in around 10 words in JSON format along with their severity (categorized as High, Medium, and Low) for the last user-provided text input to be culturally offensive to the majority of people in " + self.region + ". Don't make any presumptions and only consider the user-provided text input for evaluation. Merge similar reasons together. Provide the response within 150 words. Only provide a valid JSON in the response. Do not provide any explanations, examples or notes."
+        context = "You are a content moderator. Find out if the following text written below CONTENT label may be offensive to majority of people of " + self.region + ". Provide your response in JSON format with a boolean feild 'offensive' and an array feild 'reasons' as JSON keys. If the text is not offensive keep the 'offensive' feild as 'false' and 'reasons' feild as '[]' otherwise make 'offensive' feild as 'true' and provide list of reasons the content is offensive in the 'reasons' field in JSON with each reasons being less than 10 words. For example: if the input is '3d house icon with dark grey roof and israel flag ontop' then output should be '{\n\"offensive\": true,\n\"reasons\": [\"Potential political implications related to Israel-Palestine conflict\"]\n}. Please make note to provide only the JSON in reponse as shown in the example above. DO NOT provide explanation about your response."
         conversation = [
             {
-                "role":"system",
-                "content":context
-            },
-            {
                 "role":"user",
-                "content":"Jesus Christ as a general of an Army"
-            },
-            {
-                "role":"assistant",
-                "content":"[{\"reason\": \"Disrespecting religious sentiments of Christians\",\"severity\": \"High\"},{\"reason\": \"Misrepresentation of Jesus' peaceful teachings\",\"severity\": \"High\"},{\"reason\": \"Promoting religious conflict in diverse India\",\"severity\": \"High\"},{\"reason\": \"Inappropriate portrayal of a religious figure\",\"severity\": \"Medium\"},{\"reason\": \"Ignorance of Indian cultural and religious values\",\"severity\": \"Medium\"}]"
-            },
-            {
-                "role":"user",
-                "content":"a baby playing with toys"
-            },
-            {
-                "role":"assistant",
-                "content":"[]"
-            },
-            {
-                "role":"user",
-                "content":row[self.inputcolumn]
+                "content":context + "\n CONTENT \n" + row[self.inputcolumn]
             }
         ]
         obj = {
@@ -75,20 +55,14 @@ class _Query:
                 if x['choices'][0]['message']['content'] != None:
                     x = x['choices'][0]['message']['content']
                     major = []
-                    minor = []
-                    row[self.llm + ' offensive'] = False
-                    reasons = json.loads(x)
-                    if len(reasons) > 0:
-                        for item in reasons:
-                            if item['severity'] == 'High':
-                                row[self.llm + ' offensive'] = True
-                                major.append(item['reason'])
-                            elif item['severity'] == 'Medium':
-                                minor.append(item['reason'])
-                    row[self.llm + ' major reasons'] = ' | '.join(major)
-                    row[self.llm + ' minor reasons'] = ' | '.join(minor)
+                    output = json.loads(x)
+                    row[self.llm + ' offensive'] = output['offensive']
+                    if len(output['reasons']) > 0:
+                        for item in output['reasons']:
+                            major.append(item)
+                    row[self.llm + ' reasons'] = ' | '.join(major)
                     row[self.llm + ' time'] = round(end - start, 2)
-                    print("OUTPUT: " + row[self.inputcolumn] + " : " + str(row[self.llm + ' offensive']))
+                    print("OUTPUT: " + row[self.inputcolumn] + " : " + str(row[self.llm + ' offensive']) + "\n")
                 else:
                     print("ERROR: " + row[self.inputcolumn] + " : " + 'content filtered')
                     return row
@@ -99,7 +73,7 @@ class _Query:
         except Exception as e:
             print(e)
             row[self.llm + ' offensive'] = 'error'
-            row[self.llm + ' major reasons'] = e
+            row[self.llm + ' reasons'] = e
             return row
 
 
