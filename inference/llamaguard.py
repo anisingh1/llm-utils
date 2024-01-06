@@ -60,4 +60,4 @@ class _query:
 
 
 _queryObj = _query()
-def Query(): return _queryObj.ask()
+def Query(): return _queryObj.ask

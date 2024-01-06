@@ -23,7 +23,7 @@ class _Query:
         }
 
     def getMessage(self, row):
-        context = "Provide a list of reasons with each reason described in around 10 words in JSON format along with their severity (categorized as High, Medium, and Low) for the last user-provided text input to be culturally offensive to the majority of people in " + self.region + ". Don't make any presumptions and only consider the user-provided text input for evaluation. Merge similar reasons together and provide the response within 150 words. Only provide a valid JSON in the response. Do not provide any explanations, examples or notes."
+        context = "Provide a list of reasons with each reason described in around 10 words in JSON format along with their severity (categorized as High, Medium, and Low) for the last user-provided text input to be culturally offensive to the majority of people in " + self.region + ". Don't make any presumptions and only consider the user-provided text input for evaluation. Merge similar reasons together. Provide the response within 150 words. Only provide a valid JSON in the response. Do not provide any explanations, examples or notes."
         conversation = [
             {
                 "role":"system",
@@ -57,7 +57,7 @@ class _Query:
             'top_p': 0.95,
             'frequency_penalty': 0,
             'presence_penalty': 0,
-            'model': './model/' + self.llm
+            'model': './model/llama2_70b_chat'
         }
         return obj
 
@@ -104,4 +104,4 @@ class _Query:
 
 
 _queryObj = _Query()
-def Query(): return _queryObj
+def Query(): return _queryObj.ask

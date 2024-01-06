@@ -58,7 +58,7 @@ class _Query:
             'top_p': 0.95,
             'frequency_penalty': 0,
             'presence_penalty': 0,
-            'model': './model/' + self.llm
+            'model': './model/mixtral_8x7b'
         }
         return obj
 
@@ -105,4 +105,4 @@ class _Query:
 
 
 _queryObj = _Query()
-def Query(): return _queryObj
+def Query(): return _queryObj.ask

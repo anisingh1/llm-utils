@@ -9,6 +9,7 @@ from itertools import islice
 headers = {}
 headers['gpt4'] = ['gpt4 offensive', 'gpt4 major reasons', 'gpt4 minor reasons', 'gpt4 time']
 headers['llama2'] = ['llama2 offensive', 'llama2 major reasons', 'llama2 minor reasons', 'llama2 time']
+headers['mixtral'] = ['mixtral offensive', 'mixtral major reasons', 'mixtral minor reasons', 'mixtral time']
 headers['llamaguard'] = ['llamaguard offensive', 'llamaguard reasons', 'llamaguard time']
 
 file = Prefs().getPref('inputfile', 'csv')
@@ -63,7 +64,7 @@ with open(os.path.join('csv', file), newline='') as csvfile:
             for batch in iter(lambda: list(islice(reader, workers)), []):
                 futures = [executor.submit(llama2.Query(), row) for row in batch]
                 results += [future.result() for future in futures]
-    elif llm == "mixral":
+    elif llm == "mixtral":
         with ThreadPoolExecutor(max_workers=workers) as executor:
             for batch in iter(lambda: list(islice(reader, workers)), []):
                 futures = [executor.submit(mixtral.Query(), row) for row in batch]

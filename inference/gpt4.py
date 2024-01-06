@@ -105,4 +105,4 @@ class _Query:
 
 
 _queryObj = _Query()
-def Query(): return _queryObj
+def Query(): return _queryObj.ask
