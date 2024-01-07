@@ -24,7 +24,7 @@ class _Query:
 
 
     def getMessage(self, row):
-        context = "You are a content moderator. Find out if the following text written below CONTENT label may be offensive to majority of people of " + self.region + ". Provide your response in JSON format with a boolean feild 'offensive' and an array feild 'reasons' as JSON keys. If the text is not offensive keep the 'offensive' feild as 'false' and 'reasons' feild as '[]' otherwise make 'offensive' feild as 'true' and provide list of reasons the content is offensive in the 'reasons' field in JSON with each reasons being less than 10 words. For example: if the input is '3d house icon with dark grey roof and israel flag ontop' then output should be '{\n\"offensive\": true,\n\"reasons\": [\"Potential political implications related to Israel-Palestine conflict\"]\n}. Please make note to provide only the JSON in reponse as shown in the example above. DO NOT provide explanation about your response."
+        context = "You are a content moderator. Find out if the following text written below CONTENT label may be offensive to majority of people of " + self.region + ". Provide your response in JSON format with a boolean field 'offensive' and an array field 'reasons' as JSON keys. If the text is not offensive keep the 'offensive' field as 'false' and 'reasons' field as '[]' otherwise make 'offensive' field as 'true' and provide list of reasons the content is offensive in the 'reasons' field in JSON with each reasons being less than 10 words. For example: if the input is '3d house icon with dark grey roof and israel flag ontop' then output should be '{\n\"offensive\": true,\n\"reasons\": [\"Potential political implications related to Israel-Palestine conflict\"]\n}. Please make note to provide only the JSON in reponse as shown in the example above. DO NOT provide explanation about your response."
         conversation = [
             {
                 "role":"user",
@@ -38,7 +38,7 @@ class _Query:
             'top_p': 0.95,
             'frequency_penalty': 0,
             'presence_penalty': 0,
-            'model': './model/llama2_70b_chat'
+            'model': './model/mixtral_8x7b'
         }
         return obj
 
